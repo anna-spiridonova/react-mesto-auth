@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
+import { Route, Routes, Navigate } from 'react-router-dom';
 import '../index.css';
 import Header from './Header';
 import Main from './Main';
 import Footer from './Footer';
+import Login from './Login';
+import Register from './Register';
 import PopupWithForm from './PopupWithForm';
 import EditProfilePopup from './EditProfilePopup';
 import EditAvatarPopup from './EditAvatarPopup';
@@ -10,6 +13,7 @@ import AddPlacePopup from './AddPlacePopup';
 import ImagePopup from './ImagePopup';
 import { api } from "../utils/Api";
 import { CurrentUserContext } from '../contexts/CurrentUserContext';
+import ProtectedRouteElement from './ProtectedRoute';
 
 function App() { 
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
@@ -24,6 +28,8 @@ function App() {
     avatar: ""
   });
   const [cards, setCards] = useState([]);
+
+  const [isLoggedIn, setisLoggedIn] = useState(true);
 
   useEffect(() => {
     Promise.all([api.getUserInfo(), api.getInitialCards()])
@@ -115,16 +121,32 @@ function App() {
   return (
     <CurrentUserContext.Provider value = {currentUser}>
       <div className="root">
-        <Header />
-        <Main
-          onEditProfile={handleEditProfileClick}
-          onAddPlace={handleAddPlaceClick}
-          onEditAvatar={handleEditAvatarClick}
-          onCardClick={handleCardClick}
-          onCardLike={handleCardLike}
-          cards={cards}
-          onCardDelete={handleCardDelete}
-        />
+        <Header />        
+
+        <Routes>
+          <Route path="/" 
+            element={
+            isLoggedIn ? <Navigate to="/main" replace /> : <Navigate to="/sign-in" replace />
+            } 
+          /> 
+          <Route path="/main" element={
+            <ProtectedRouteElement loggedIn={isLoggedIn}>
+              <Main
+                onEditProfile={handleEditProfileClick}
+                onAddPlace={handleAddPlaceClick}
+                onEditAvatar={handleEditAvatarClick}
+                onCardClick={handleCardClick}
+                onCardLike={handleCardLike}
+                cards={cards}
+                onCardDelete={handleCardDelete}
+              />
+            </ProtectedRouteElement>
+          }/>
+          <Route path='/sign-up' element={<Register />}/>
+          <Route path='/sign-in' element={<Login />}/>
+        </Routes>
+
+
         <Footer />
 
         {/* форма редактора профиля */}
