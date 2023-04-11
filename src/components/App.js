@@ -140,14 +140,12 @@ function App() {
                 cards={cards}
                 onCardDelete={handleCardDelete}
               />
+              <Footer />
             </ProtectedRouteElement>
           }/>
           <Route path='/sign-up' element={<Register />}/>
           <Route path='/sign-in' element={<Login />}/>
         </Routes>
-
-
-        <Footer />
 
         {/* форма редактора профиля */}
         <EditProfilePopup
