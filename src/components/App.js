@@ -11,6 +11,7 @@ import EditProfilePopup from './EditProfilePopup';
 import EditAvatarPopup from './EditAvatarPopup';
 import AddPlacePopup from './AddPlacePopup';
 import ImagePopup from './ImagePopup';
+import InfoTooltip from './InfoTooltip';
 import { api } from "../utils/Api";
 import { CurrentUserContext } from '../contexts/CurrentUserContext';
 import ProtectedRouteElement from './ProtectedRoute';
@@ -21,6 +22,7 @@ function App() {
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState({});
   const [isImagePopupOpen, setIsImagePopupOpen] = useState(false);
+  const [isTooltipPopupOpen, setisTooltipPopupOpen] = useState(false);
 
   const [currentUser, setCurrentUser] = useState({
     name: "",
@@ -30,6 +32,7 @@ function App() {
   const [cards, setCards] = useState([]);
 
   const [isLoggedIn, setisLoggedIn] = useState(true);
+  const [email, setEmail] = useState("");
 
   useEffect(() => {
     Promise.all([api.getUserInfo(), api.getInitialCards()])
@@ -57,6 +60,7 @@ function App() {
     setIsAddPlacePopupOpen(false);
     setSelectedCard({});
     setIsImagePopupOpen(false);
+    setisTooltipPopupOpen(false);
   }
   function handleCardClick(card) {
     setSelectedCard(card);
@@ -118,10 +122,16 @@ function App() {
       });
   }
 
+  function handleSingUpSubmit() {
+    setisTooltipPopupOpen(true);
+  }
+
   return (
     <CurrentUserContext.Provider value = {currentUser}>
       <div className="root">
-        <Header />        
+        <Header
+          email={email}
+        />        
 
         <Routes>
           <Route path="/" 
@@ -179,6 +189,12 @@ function App() {
         card={selectedCard}
         onClose={closeAllPopups}
         isOpen={isImagePopupOpen}
+        />
+
+        <InfoTooltip
+          name={"tooltip"}
+          isOpen={isTooltipPopupOpen}
+          onClose={closeAllPopups}
         />
 
       </div>

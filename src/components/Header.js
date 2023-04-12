@@ -1,7 +1,7 @@
 import logo from '../images/logo.svg';
 import { Route, Routes, Link } from 'react-router-dom';
 
-function Header() {
+function Header(props) {
   return (
     <header className="header">
       <img className="header__logo" src={logo} alt="Логотип Место Россия" />
@@ -11,6 +11,12 @@ function Header() {
         } />
         <Route path="/sign-up" element={
           <Link to="/sign-in" className="link header__link">Войти</Link>
+        }/>
+        <Route path="/main" element={
+          <div className="header__container">
+            <p className="header__email">jjjll</p>
+            <Link to="/sign-in" className="link header__link">Выйти</Link>
+          </div>
         }/>
       </Routes>
     </header>
