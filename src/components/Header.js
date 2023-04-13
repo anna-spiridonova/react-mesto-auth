@@ -14,8 +14,8 @@ function Header(props) {
         }/>
         <Route path="/main" element={
           <div className="header__container">
-            <p className="header__email">jjjll</p>
-            <Link to="/sign-in" className="link header__link">Выйти</Link>
+            <p className="header__email">{props.email}</p>
+            <Link to="/sign-in" className="link header__link" onClick={props.singOut}>Выйти</Link>
           </div>
         }/>
       </Routes>

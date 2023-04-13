@@ -1,9 +1,9 @@
 import React from 'react';
 import { Navigate } from "react-router-dom";
 
-const ProtectedRouteElement = ({ children, ...props  }) => {
+const ProtectedRoute = ({ element: Component, ...props  }) => {
   return (
-    props.loggedIn ? children : <Navigate to="/sign-in" replace/>
+    props.loggedIn ? <Component {...props} /> : <Navigate to="/sign-in" replace/>
 )};
 
-export default ProtectedRouteElement;
+export default ProtectedRoute;

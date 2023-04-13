@@ -10,19 +10,43 @@ function InfoTooltip(props) {
           type="button"
           onClick={props.onClose}
         />
-        <img 
-        className="popup__icon"
-        src={check_mark}
-        alt="Успешная регистрация"
-        />
-        <h2 className="popup__tooltip">Вы успешно зарегистрировались!</h2>
-
-        <img
-          className="popup__icon"
-          src={cross}
-          alt="Ошибка регистрации"
-        />
-        <h2 className="popup__tooltip">Что-то пошло не так! Попробуйте ещё раз.</h2>
+        {props.isSuccess ? 
+          <>
+            <img 
+            className="popup__icon"
+            src={check_mark}
+            alt="Успешная регистрация"
+            />
+            <h2 className="popup__tooltip">Вы успешно зарегистрировались!</h2>
+          </> :
+          <>
+            <img
+              className="popup__icon"
+              src={cross}
+              alt="Ошибка регистрации"
+            />
+            <h2 className="popup__tooltip">Что-то пошло не так! Попробуйте ещё раз.</h2>
+          </>
+        }
+        {/* if (props.isSuccess) {
+          <>
+            <img 
+            className="popup__icon"
+            src={check_mark}
+            alt="Успешная регистрация"
+            />
+            <h2 className="popup__tooltip">Вы успешно зарегистрировались!</h2>
+          </>
+        }else {
+          <>
+            <img
+              className="popup__icon"
+              src={cross}
+              alt="Ошибка регистрации"
+            />
+            <h2 className="popup__tooltip">Что-то пошло не так! Попробуйте ещё раз.</h2>
+          </>
+        } */}
       </div>
     </div>
   );
