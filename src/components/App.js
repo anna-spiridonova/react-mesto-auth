@@ -35,6 +35,7 @@ function App() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [email, setEmail] = useState("");
   const navigate = useNavigate();
+  const [isSuccess, setIsSuccess] = useState(false);
 
   useEffect(() => {
     tokenCheck();
@@ -134,7 +135,7 @@ function App() {
     const jwt = localStorage.getItem('jwt');
     if(!jwt) {
       return
-    }
+    };
     auth.getContent(jwt)
       .then((res) => {
         if(res) {
@@ -161,8 +162,15 @@ function App() {
       <div className="root">
         <Header
           email={email}
-          singOut={singOut}
-        />        
+          onSingOut={singOut}
+        />
+        
+        <InfoTooltip
+        name={"tooltip"}
+        isOpen={isTooltipPopupOpen}
+        onClose={closeAllPopups}
+        isSuccess={isSuccess}
+        />
 
         <Routes>
           <Route path="/" 
@@ -185,12 +193,11 @@ function App() {
           }/>
           <Route path='/sign-up' element={
             <Register
-            isOpen={isTooltipPopupOpen}
-            onClose={closeAllPopups}
             openTooltip={handleSingUpSubmit}
+            onSuccess={setIsSuccess}
             />
           }/>
-          <Route path='/sign-in' element={<Login handleLogin={handleLogin} />}/>
+          <Route path='/sign-in' element={<Login onLogin={handleLogin} />}/>
         </Routes>
 
         {loggedIn && <Footer />}
@@ -228,13 +235,6 @@ function App() {
         onClose={closeAllPopups}
         isOpen={isImagePopupOpen}
         />
-
-        {/* <InfoTooltip
-          name={"tooltip"}
-          isOpen={isTooltipPopupOpen}
-          onClose={closeAllPopups}
-          isSuccess={isSuccess}
-        /> */}
 
       </div>
     </CurrentUserContext.Provider>

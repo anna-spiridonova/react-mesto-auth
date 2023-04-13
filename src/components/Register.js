@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Link, useNavigate } from 'react-router-dom'; 
-import InfoTooltip from "./InfoTooltip";
 import * as auth from '../utils/auth';
 
 function Register(props) {
@@ -8,8 +7,6 @@ function Register(props) {
     email: "",
     password: ""
   });
-
-  const [isSuccess, setIsSuccess] = useState(false);
 
   const navigate = useNavigate();
 
@@ -26,14 +23,12 @@ function Register(props) {
     const { email, password } = formValue;
     auth.register(email, password)
       .then((res) => {
-        setIsSuccess(true);
+        props.onSuccess(true);
         props.openTooltip();
-        setTimeout(() => {
-          navigate("/sign-in")
-        }, 3000)
+        navigate("/sign-in")
       })
       .catch((err) => {
-        setIsSuccess(false);
+        props.onSuccess(false);
         props.openTooltip();
         console.log(err)
       });
@@ -41,12 +36,6 @@ function Register(props) {
 
   return (
     <>
-      <InfoTooltip
-        name={"tooltip"}
-        isOpen={props.isOpen}
-        onClose={props.onClose}
-        isSuccess={isSuccess}
-      />
       <div className="login__container">
         <h2 className="login__title">Регистрация</h2>
         <form

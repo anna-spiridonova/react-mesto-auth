@@ -26,7 +26,7 @@ function Login(props) {
       if(res.token) {
         localStorage.setItem('jwt', res.token);
       };
-      props.handleLogin();
+      props.onLogin(email);
       navigate("/main")
     })
     .catch((err) => {
