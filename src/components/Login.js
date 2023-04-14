@@ -27,7 +27,7 @@ function Login(props) {
         localStorage.setItem('jwt', res.token);
       };
       props.onLogin(email);
-      navigate("/main")
+      navigate("/")
     })
     .catch((err) => {
       console.log(err)
@@ -43,7 +43,7 @@ function Login(props) {
       .then((res) => {
         if(res) {
           props.onLogin(res.data.email);
-          navigate("/main")
+          navigate("/")
         }
       })
       .catch((err) => {

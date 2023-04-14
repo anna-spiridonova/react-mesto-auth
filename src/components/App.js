@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Route, Routes, Navigate } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import '../index.css';
 import Header from './Header';
 import Main from './Main';
@@ -153,13 +153,7 @@ function App() {
         />
 
         <Routes>
-          <Route path="/" 
-            element={loggedIn ? <Navigate to="/main" replace /> : <Navigate to="/sign-in" replace />} 
-          /> 
-          <Route path="/react-mesto-auth" 
-            element={loggedIn ? <Navigate to="/main" replace /> : <Navigate to="/sign-in" replace />} 
-          /> 
-          <Route path="/main" element={
+          <Route path="/" element={
             <ProtectedRoute
               loggedIn={loggedIn}
               element={Main}

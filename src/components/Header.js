@@ -12,7 +12,7 @@ function Header(props) {
         <Route path="/sign-up" element={
           <Link to="/sign-in" className="link header__link">Войти</Link>
         }/>
-        <Route path="/main" element={
+        <Route path="/" element={
           <div className="header__container">
             <p className="header__email">{props.email}</p>
             <Link to="/sign-in" className="link header__link" onClick={props.onSingOut}>Выйти</Link>
