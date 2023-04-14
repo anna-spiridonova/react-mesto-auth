@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom'; 
 import * as auth from '../utils/auth';
 
@@ -34,6 +34,27 @@ function Login(props) {
     });
   }
   
+  function tokenCheck() {
+    const jwt = localStorage.getItem('jwt');
+    if(!jwt) {
+      return
+    };
+    auth.getContent(jwt)
+      .then((res) => {
+        if(res) {
+          props.onLogin(res.data.email);
+          navigate("/main")
+        }
+      })
+      .catch((err) => {
+        console.log(err)
+      });
+  }
+
+  useEffect(() => {
+    tokenCheck()
+  }, [])
+
   return (
     <div className="login__container">
       <h2 className="login__title">Вход</h2>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Route, Routes, Navigate, useNavigate } from 'react-router-dom';
+import { Route, Routes, Navigate } from 'react-router-dom';
 import '../index.css';
 import Header from './Header';
 import Main from './Main';
@@ -15,7 +15,6 @@ import InfoTooltip from './InfoTooltip';
 import { api } from "../utils/Api";
 import { CurrentUserContext } from '../contexts/CurrentUserContext';
 import ProtectedRoute from './ProtectedRoute';
-import * as auth from '../utils/auth';
 
 function App() { 
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
@@ -34,11 +33,9 @@ function App() {
 
   const [loggedIn, setLoggedIn] = useState(false);
   const [email, setEmail] = useState("");
-  const navigate = useNavigate();
   const [isSuccess, setIsSuccess] = useState(false);
 
   useEffect(() => {
-    tokenCheck();
     Promise.all([api.getUserInfo(), api.getInitialCards()])
     .then(([resUserInfo, resInitialCards]) => {
       setCurrentUser(resUserInfo)
@@ -131,23 +128,6 @@ function App() {
     setEmail(email)
   };
 
-  function tokenCheck() {
-    const jwt = localStorage.getItem('jwt');
-    if(!jwt) {
-      return
-    };
-    auth.getContent(jwt)
-      .then((res) => {
-        if(res) {
-          handleLogin(res.data.email);
-          navigate("/main")
-        }
-      })
-      .catch((err) => {
-        console.log(err)
-      });
-  }
-
   function handleSingUpSubmit() {
     setIsTooltipPopupOpen(true);
   }
@@ -166,35 +146,36 @@ function App() {
         />
         
         <InfoTooltip
-        name={"tooltip"}
-        isOpen={isTooltipPopupOpen}
-        onClose={closeAllPopups}
-        isSuccess={isSuccess}
+          name={"tooltip"}
+          isOpen={isTooltipPopupOpen}
+          onClose={closeAllPopups}
+          isSuccess={isSuccess}
         />
 
         <Routes>
           <Route path="/" 
-            element={
-            loggedIn ? <Navigate to="/main" replace /> : <Navigate to="/sign-in" replace />
-            } 
+            element={loggedIn ? <Navigate to="/main" replace /> : <Navigate to="/sign-in" replace />} 
+          /> 
+          <Route path="/react-mesto-auth" 
+            element={loggedIn ? <Navigate to="/main" replace /> : <Navigate to="/sign-in" replace />} 
           /> 
           <Route path="/main" element={
             <ProtectedRoute
-            loggedIn={loggedIn}
-            element={Main}
-            onEditProfile={handleEditProfileClick}
-            onAddPlace={handleAddPlaceClick}
-            onEditAvatar={handleEditAvatarClick}
-            onCardClick={handleCardClick}
-            onCardLike={handleCardLike}
-            cards={cards}
-            onCardDelete={handleCardDelete}
+              loggedIn={loggedIn}
+              element={Main}
+              onEditProfile={handleEditProfileClick}
+              onAddPlace={handleAddPlaceClick}
+              onEditAvatar={handleEditAvatarClick}
+              onCardClick={handleCardClick}
+              onCardLike={handleCardLike}
+              cards={cards}
+              onCardDelete={handleCardDelete}
             />
           }/>
           <Route path='/sign-up' element={
             <Register
-            openTooltip={handleSingUpSubmit}
-            onSuccess={setIsSuccess}
+              openTooltip={handleSingUpSubmit}
+              onSuccess={setIsSuccess}
             />
           }/>
           <Route path='/sign-in' element={<Login onLogin={handleLogin} />}/>
