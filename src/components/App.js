@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, useNavigate } from 'react-router-dom';
 import '../index.css';
 import Header from './Header';
 import Main from './Main';
@@ -15,6 +15,7 @@ import InfoTooltip from './InfoTooltip';
 import { api } from "../utils/Api";
 import { CurrentUserContext } from '../contexts/CurrentUserContext';
 import ProtectedRoute from './ProtectedRoute';
+import * as auth from '../utils/auth';
 
 function App() { 
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
@@ -23,18 +24,63 @@ function App() {
   const [selectedCard, setSelectedCard] = useState({});
   const [isImagePopupOpen, setIsImagePopupOpen] = useState(false);
   const [isTooltipPopupOpen, setIsTooltipPopupOpen] = useState(false);
-
   const [currentUser, setCurrentUser] = useState({
     name: "",
     about: "",
     avatar: ""
   });
   const [cards, setCards] = useState([]);
-
   const [loggedIn, setLoggedIn] = useState(false);
   const [email, setEmail] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  const isOpen =
+    isEditAvatarPopupOpen ||
+    isEditProfilePopupOpen ||
+    isAddPlacePopupOpen ||
+    isImagePopupOpen ||
+    isTooltipPopupOpen;
 
+    
+  // открытие и закрытие попапов
+  useEffect(() => {
+    function closeByEscape(evt) {
+      if(evt.key === 'Escape') {
+        closeAllPopups();
+      }
+    }
+    if(isOpen) {
+      document.addEventListener('keydown', closeByEscape);
+      return () => {
+        document.removeEventListener('keydown', closeByEscape);
+      }
+    }
+  }, [isOpen]) 
+
+  function handleEditAvatarClick() {
+      setIsEditAvatarPopupOpen(true)
+    }
+    function handleEditProfileClick() {
+      setIsEditProfilePopupOpen(true)
+    }
+    function handleAddPlaceClick() {
+      setIsAddPlacePopupOpen(true)
+    }
+    function closeAllPopups() {
+      setIsEditAvatarPopupOpen(false);
+      setIsEditProfilePopupOpen(false);
+      setIsAddPlacePopupOpen(false);
+      setSelectedCard({});
+      setIsImagePopupOpen(false);
+      setIsTooltipPopupOpen(false);
+    }
+    function handleCardClick(card) {
+      setSelectedCard(card);
+      setIsImagePopupOpen(true)
+    }
+  
+  //запросы к api
   useEffect(() => {
     Promise.all([api.getUserInfo(), api.getInitialCards()])
     .then(([resUserInfo, resInitialCards]) => {
@@ -45,28 +91,6 @@ function App() {
       console.log(err)
     });
   }, []);
-
-  function handleEditAvatarClick() {
-    setIsEditAvatarPopupOpen(true)
-  }
-  function handleEditProfileClick() {
-    setIsEditProfilePopupOpen(true)
-  }
-  function handleAddPlaceClick() {
-    setIsAddPlacePopupOpen(true)
-  }
-  function closeAllPopups() {
-    setIsEditAvatarPopupOpen(false);
-    setIsEditProfilePopupOpen(false);
-    setIsAddPlacePopupOpen(false);
-    setSelectedCard({});
-    setIsImagePopupOpen(false);
-    setIsTooltipPopupOpen(false);
-  }
-  function handleCardClick(card) {
-    setSelectedCard(card);
-    setIsImagePopupOpen(true)
-  }
 
   function handleCardLike(card) {
     const isLiked = card.likes.some(i => i._id === currentUser._id);    
@@ -81,9 +105,8 @@ function App() {
 
   function handleCardDelete(card) {
     api.deleteCard(card._id)
-      .then((res) => {
-        const newCards = cards.filter((c) => (c._id !== card._id && res));
-        setCards(newCards);
+      .then(() => {
+        setCards((state) => state.filter((item) => item._id !== card._id)); 
       })
       .catch((err) => {
         console.log(err)
@@ -91,6 +114,7 @@ function App() {
   }
 
   function handleUpdateUser({name, about}) {
+    setIsLoading(true);
     api.editProfileInfo(name, about)
       .then((res) => {
         setCurrentUser(res);
@@ -98,44 +122,96 @@ function App() {
       })
       .catch((err) => {
         console.log(err)
-      });
+      })
+      .finally(() => setIsLoading(false))
   }
 
   function handleUpdateAvatar({avatar}) {
+    setIsLoading(true);
     api.editAvatar(avatar)
       .then((res) => {
         setCurrentUser(res);
-        closeAllPopups();
+        closeAllPopups()
       })
       .catch((err) => {
         console.log(err)
-      });
+      })
+      .finally(() => setIsLoading(false))
   }
 
   function handleAddPlaceSubmit({name, link}) {
+    setIsLoading(true);
     api.addNewCard(name, link)
       .then((newCard) => {
         setCards([newCard, ...cards]);
-        closeAllPopups();
+        closeAllPopups()
       })
       .catch((err) => {
         console.log(err)
-      });
+      })
+      .finally(() => setIsLoading(false))
   }
 
+  //регистрация и авторизация
   function handleLogin(email) {
     setLoggedIn(true);
     setEmail(email)
   };
 
-  function handleSingUpSubmit() {
-    setIsTooltipPopupOpen(true);
+  function handleLoginSubmit (email, password) {
+    auth.authorize(email, password)
+    .then((res) => {
+      if(res.token) {
+        localStorage.setItem('jwt', res.token);
+      };
+      handleLogin(email);
+      navigate("/")
+    })
+    .catch((err) => {
+      console.log(err)
+    });
+  }
+
+  function handleRegisterSubmit (email, password) {
+    auth.register(email, password)
+      .then(() => {
+        setIsSuccess(true);
+        navigate("/sign-in")
+      })
+      .catch((err) => {
+        setIsSuccess(false);
+        console.log(err)
+      })
+      .finally(() => setIsTooltipPopupOpen(true))
   }
 
   function singOut() {
     localStorage.removeItem('jwt');
     setLoggedIn(false)
   }
+
+  function tokenCheck() {
+    const jwt = localStorage.getItem('jwt');
+    if(!jwt) {
+      return
+    };
+    auth.getContent(jwt)
+      .then((res) => {
+        if(res) {
+          handleLogin(res.data.email);
+          navigate("/")
+        }
+      })
+      .catch((err) => {
+        console.log(err)
+      });
+  }
+
+  useEffect(() => {
+    tokenCheck()
+  }, [])
+
+
 
   return (
     <CurrentUserContext.Provider value = {currentUser}>
@@ -167,12 +243,9 @@ function App() {
             />
           }/>
           <Route path='/sign-up' element={
-            <Register
-              openTooltip={handleSingUpSubmit}
-              onSuccess={setIsSuccess}
-            />
+            <Register onRegister={handleRegisterSubmit}/>
           }/>
-          <Route path='/sign-in' element={<Login onLogin={handleLogin} />}/>
+          <Route path='/sign-in' element={<Login onLogin={handleLoginSubmit}/>}/>
         </Routes>
 
         {loggedIn && <Footer />}
@@ -181,7 +254,8 @@ function App() {
         <EditProfilePopup
         isOpen={isEditProfilePopupOpen}
         onClose={closeAllPopups}
-        onUpdateUser={handleUpdateUser} 
+        onUpdateUser={handleUpdateUser}
+        onLoading={isLoading}
         />
 
         {/* форма редактора аватара */}
@@ -189,6 +263,7 @@ function App() {
         isOpen={isEditAvatarPopupOpen}
         onClose={closeAllPopups}
         onUpdateAvatar={handleUpdateAvatar}
+        onLoading={isLoading}
         />
 
         {/* форма создания карточки */}
@@ -196,6 +271,7 @@ function App() {
         isOpen={isAddPlacePopupOpen}
         onClose={closeAllPopups}
         onAddPlace={handleAddPlaceSubmit}
+        onLoading={isLoading}
         />
 
         {/* форма подтверждения удаления */}

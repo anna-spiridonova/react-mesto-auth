@@ -1,14 +1,10 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from 'react-router-dom'; 
-import * as auth from '../utils/auth';
+import { useState } from "react";
 
-function Login(props) {
+function Login({onLogin}) {
   const [formValue, setformValue] = useState({
     email: "",
     password: ""
   });
-
-  const navigate = useNavigate();
 
   function handleChange(evt) {
     const {name, value} = evt.target;
@@ -21,39 +17,8 @@ function Login(props) {
   function handleSubmit(evt) {
     evt.preventDefault();
     const { email, password } = formValue;
-    auth.authorize(email, password)
-    .then((res) => {
-      if(res.token) {
-        localStorage.setItem('jwt', res.token);
-      };
-      props.onLogin(email);
-      navigate("/")
-    })
-    .catch((err) => {
-      console.log(err)
-    });
+    onLogin(email, password)
   }
-  
-  function tokenCheck() {
-    const jwt = localStorage.getItem('jwt');
-    if(!jwt) {
-      return
-    };
-    auth.getContent(jwt)
-      .then((res) => {
-        if(res) {
-          props.onLogin(res.data.email);
-          navigate("/")
-        }
-      })
-      .catch((err) => {
-        console.log(err)
-      });
-  }
-
-  useEffect(() => {
-    tokenCheck()
-  }, [])
 
   return (
     <div className="login__container">

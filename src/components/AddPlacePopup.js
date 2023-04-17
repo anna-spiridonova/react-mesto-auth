@@ -29,10 +29,10 @@ function AddPlacePopup(props) {
     <PopupWithForm
       name={"place"}
       title={"Новое место"}
-      buttonValue={"Создать"}
       isOpen={props.isOpen}
       onClose={props.onClose}
       onSubmit={handleSubmit}
+      buttonText={props.onLoading ? 'Сохранение...' : 'Создать'}
     >
       <fieldset className="popup__input-container">
         <label className="popup__label">

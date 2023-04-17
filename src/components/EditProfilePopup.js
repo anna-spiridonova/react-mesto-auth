@@ -34,6 +34,7 @@ function EditProfilePopup(props) {
       isOpen={props.isOpen}
       onClose={props.onClose}
       onSubmit={handleSubmit}
+      buttonText={props.onLoading && 'Сохранение...'}
     >
       <fieldset className="popup__input-container">
         <label className="popup__label">

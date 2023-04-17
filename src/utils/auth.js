@@ -8,35 +8,37 @@ export const handleResponse = (res) => {
   }
 }
 
+function request(endpoint, options) {
+  return fetch(`${baseUrl}${endpoint}`, options)
+    .then(handleResponse)
+}
+
 export const register = (email, password) => {
-  return fetch(`${baseUrl}/signup`, {
+  return request("/signup", {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({ email, password })
   })
-  .then(handleResponse)
 };
 
 export const authorize = (email, password) => {
-  return fetch(`${baseUrl}/signin`, {
+  return request("/signin", {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({ email, password })
   })
-  .then(handleResponse)
 };
 
 export const getContent = (token) => {
-  return fetch(`${baseUrl}/users/me`, {
+  return request("/users/me", {
     method: 'GET',
     headers: {
       "Content-Type": "application/json",
       "Authorization" : `Bearer ${token}`
     }
   })
-  .then(handleResponse)
 };
